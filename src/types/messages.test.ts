@@ -41,6 +41,8 @@ describe('message validation', () => {
     expect(isUiToPluginMessage({ type: 'set-dimension', nodeId: '1', revision: 4, axis: 'width', valuePx: 12.5 })).toBe(true);
     expect(isUiToPluginMessage({ type: 'set-position', nodeId: '1', revision: 4, axis: 'x', valuePx: -491 })).toBe(true);
     expect(isUiToPluginMessage({ type: 'set-stroke-weight', nodeId: '1', revision: 4, valuePx: 1.5 })).toBe(true);
+    expect(isUiToPluginMessage({ type: 'set-stroke-inclusion-preview', included: false })).toBe(true);
+    expect(isUiToPluginMessage({ type: 'set-stroke-inclusion-preview', included: 'false' })).toBe(false);
     expect(isUiToPluginMessage({ type: 'set-dimension', nodeId: '1', revision: 4, axis: 'width', valuePx: Infinity })).toBe(false);
     expect(isUiToPluginMessage({ type: 'set-stroke-weight', nodeId: '1', revision: 4, valuePx: -1 })).toBe(false);
     expect(isUiToPluginMessage({ type: 'set-aspect-lock', nodeId: '1', revision: 4, locked: 'yes' })).toBe(false);

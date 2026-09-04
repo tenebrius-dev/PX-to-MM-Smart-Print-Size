@@ -3,11 +3,13 @@ import { isValidCoordinate } from '../domain/units';
 import { isAnchorPoint, scaledGeometry } from '../domain/scale';
 import {
   getNodeCapabilities,
+  getStrokeCapabilities,
   hasAspectRatio,
   hasEditableStrokeWeight,
   hasResize,
   hasRescale,
 } from './node-capabilities';
+import { OverlayController } from './overlay-controller';
 import { getSelectionState } from './selection';
 import type { PluginToUiMessage, UiToPluginMessage } from '../types/messages';
 import { isUiToPluginMessage } from '../types/messages';
@@ -26,12 +28,15 @@ let refreshToken = 0;
 let refreshTimer: ReturnType<typeof setTimeout> | null = null;
 let attachedPage: PageNode | null = null;
 let attachedPageListener: ((event: NodeChangeEvent) => void) | null = null;
+let includesOutsideStroke = false;
 
 figma.showUI(__html__, {
   width: UI_WIDTH,
   height: INITIAL_UI_HEIGHT,
   themeColors: true,
 });
+
+const overlayController = new OverlayController(figma);
 
 function post(message: PluginToUiMessage): void {
   figma.ui.postMessage(message);
@@ -76,6 +81,23 @@ function relatedToSelection(changed: SceneNode | RemovedNode, selected: SceneNod
   return false;
 }
 
+function syncOverlay(): void {
+  const selection = figma.currentPage.selection;
+  if (!includesOutsideStroke || selection.length !== 1 || overlayController.isOverlayNode(selection[0])) {
+    overlayController.removeOverlay();
+    return;
+  }
+
+  const target = selection[0];
+  const stroke = getStrokeCapabilities(target);
+  if (!stroke.present || !stroke.outsets) {
+    overlayController.removeOverlay();
+    return;
+  }
+
+  overlayController.updateOverlay(target, stroke.outsets);
+}
+
 function queueRefresh(): void {
   if (refreshTimer !== null) {
     clearTimeout(refreshTimer);
@@ -102,7 +124,7 @@ function attachCurrentPageListener(): void {
   attachedPage = page;
   attachedPageListener = (event) => {
     const selected = figma.currentPage.selection.length === 1 ? figma.currentPage.selection[0] : null;
-    if (event.nodeChanges.some((change) => relatedToSelection(change.node, selected))) {
+    if (event.nodeChanges.some((change) => !overlayController.isOverlayNode(change.node) && relatedToSelection(change.node, selected))) {
       queueRefresh();
     }
   };
@@ -117,6 +139,8 @@ function attachCurrentPageListener(): void {
 async function refreshSelection(): Promise<void> {
   const token = ++refreshToken;
   const selection = figma.currentPage.selection;
+
+  syncOverlay();
 
   try {
     const state = await getSelectionState(selection, figma.mixed, {
@@ -360,7 +384,7 @@ function handleGeometryMessage(message: UiToPluginMessage): void {
     void refreshSelection();
   } catch (error) {
     const messageText = errorMessage(error, 'Не удалось изменить геометрию объекта.');
-    post({ type: 'error', message: messageText, revision, nodeId: message.type === 'resize' ? undefined : message.nodeId });
+    post({ type: 'error', message: messageText, revision, nodeId: 'nodeId' in message ? message.nodeId : undefined });
     notifyError(messageText);
     void refreshSelection();
   }
@@ -372,8 +396,17 @@ figma.on('selectionchange', () => {
 });
 
 figma.on('currentpagechange', () => {
+  overlayController.removeOverlay();
   attachCurrentPageListener();
   queueRefresh();
+});
+
+figma.on('close', () => {
+  if (refreshTimer !== null) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
+  }
+  overlayController.removeOverlay();
 });
 
 figma.ui.onmessage = (message: unknown) => {
@@ -387,9 +420,16 @@ figma.ui.onmessage = (message: unknown) => {
     return;
   }
 
+  if (message.type === 'set-stroke-inclusion-preview') {
+    includesOutsideStroke = message.included;
+    syncOverlay();
+    return;
+  }
+
   handleGeometryMessage(message);
 };
 
+overlayController.cleanupStaleOverlays();
 attachCurrentPageListener();
 
 async function initialize(): Promise<void> {

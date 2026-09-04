@@ -57,7 +57,12 @@ describe('PX to MM — Smart Print Size property panel', () => {
     expect(screen.getByLabelText('Stroke in mm')).toHaveValue(0);
     expect(screen.getByLabelText('Stroke in mm')).toBeDisabled();
     expect(screen.getByText('Stroke')).toHaveClass('property-stroke__label--disabled');
-    expect(screen.getByText('Inside stroke')).toHaveClass('property-stroke__label--disabled');
+    expect(screen.getByText('Outside stroke')).toHaveClass('property-stroke__label--disabled');
+    const strokeIcon = document.querySelector('.input__leading-icon svg');
+    expect(strokeIcon).toHaveAttribute('width', '24');
+    expect(strokeIcon).toHaveAttribute('height', '24');
+    expect(strokeIcon).toHaveAttribute('viewBox', '0 0 24 24');
+    expect(strokeIcon?.querySelector('path')).toHaveAttribute('fill', 'currentColor');
   });
 
   it('renders selected geometry in mm by default and switches dimensions to px', async () => {
@@ -191,8 +196,8 @@ describe('PX to MM — Smart Print Size property panel', () => {
       }));
     });
     fireEvent.click(screen.getByRole('button', { name: 'px' }));
-    await waitFor(() => expect(screen.getByLabelText('Width in px')).toHaveValue(78));
-    expect(screen.getByRole('button', { name: 'Inside stroke' })).not.toBeDisabled();
+    await waitFor(() => expect(screen.getByLabelText('Width in px')).toHaveValue(72));
+    expect(screen.getByRole('button', { name: 'Outside stroke' })).not.toBeDisabled();
 
     act(() => {
       window.dispatchEvent(new MessageEvent('message', { data: { pluginMessage: hiddenMessage } }));
@@ -200,16 +205,16 @@ describe('PX to MM — Smart Print Size property panel', () => {
     await waitFor(() => expect(screen.getByLabelText('Width in px')).toHaveValue(72));
     expect(screen.getByLabelText('Stroke in px')).toHaveValue(0);
     expect(screen.getByLabelText('Stroke in px')).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Inside stroke' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Outside stroke' })).toBeDisabled();
 
     act(() => {
       window.dispatchEvent(new MessageEvent('message', {
         data: { pluginMessage: { ...visibleMessage, revision: 12 } },
       }));
     });
-    await waitFor(() => expect(screen.getByLabelText('Width in px')).toHaveValue(78));
+    await waitFor(() => expect(screen.getByLabelText('Width in px')).toHaveValue(72));
     expect(screen.getByLabelText('Stroke in px')).toHaveValue(3);
-    expect(screen.getByRole('button', { name: 'Inside stroke' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Outside stroke' })).not.toBeDisabled();
   });
 
   it('toggles outside-stroke calculation in the Width-sized Stroke slot without changing Auto Layout', async () => {
@@ -239,27 +244,33 @@ describe('PX to MM — Smart Print Size property panel', () => {
       }));
     });
 
-    const labels = screen.getByText('Inside stroke');
+    const labels = screen.getByText('Outside stroke');
     expect(labels.parentElement).toHaveClass('property-stroke__labels');
-    const trigger = screen.getByRole('button', { name: 'Inside stroke' });
-    expect(trigger).toHaveTextContent('Included');
+    const trigger = screen.getByRole('button', { name: 'Outside stroke' });
+    expect(trigger).toHaveTextContent('Excluded');
     expect(trigger.closest('.property-row--stroke')).toHaveClass('property-row--stroke');
 
     fireEvent.click(screen.getByRole('button', { name: 'px' }));
-    expect(screen.getByLabelText('Width in px')).toHaveValue(78);
-    expect(screen.getByLabelText('Scale width in px')).toHaveValue(78);
+    expect(screen.getByLabelText('Width in px')).toHaveValue(72);
+    expect(screen.getByLabelText('Scale width in px')).toHaveValue(72);
 
     fireEvent.click(trigger);
-    const menu = await screen.findByRole('listbox', { name: 'Inside stroke options' });
-    expect(screen.getByRole('option', { name: 'Included' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('option', { name: 'Included' })).toHaveClass('selected');
-    expect(screen.getByRole('option', { name: 'Excluded' })).toHaveAttribute('aria-selected', 'false');
-    expect(screen.getByRole('option', { name: 'Excluded' })).not.toHaveClass('selected');
-    fireEvent.click(screen.getByRole('option', { name: 'Excluded' }));
+    const menu = await screen.findByRole('listbox', { name: 'Outside stroke options' });
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Excluded', 'Included']);
+    expect(screen.getByRole('option', { name: 'Excluded' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('option', { name: 'Excluded' })).toHaveClass('selected');
+    expect(screen.getByRole('option', { name: 'Included' })).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByRole('option', { name: 'Included' })).not.toHaveClass('selected');
+    fireEvent.click(screen.getByRole('option', { name: 'Included' }));
 
-    await waitFor(() => expect(screen.getByLabelText('Width in px')).toHaveValue(72));
-    expect(screen.getByLabelText('Scale width in px')).toHaveValue(72);
-    expect(postMessage).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByLabelText('Width in px')).toHaveValue(78));
+    expect(screen.getByLabelText('Scale width in px')).toHaveValue(78);
+    expect(postMessage).toHaveBeenLastCalledWith({
+      pluginMessage: { type: 'set-stroke-inclusion-preview', included: true },
+    }, '*');
+    expect(postMessage.mock.calls.some(([message]) => (
+      message.pluginMessage.type === 'set-dimension' || message.pluginMessage.type === 'set-scale'
+    ))).toBe(false);
     await waitFor(() => expect(menu).not.toBeInTheDocument());
   });
 
@@ -291,6 +302,9 @@ describe('PX to MM — Smart Print Size property panel', () => {
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'px' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Outside stroke' }));
+    fireEvent.click(await screen.findByRole('option', { name: 'Included' }));
+    await waitFor(() => expect(screen.getByLabelText('Width in px')).toHaveValue(78));
     fireEvent.change(screen.getByLabelText('Width in px'), { target: { value: '100.3333333333333' } });
     expect(postMessage).toHaveBeenCalledWith({
       pluginMessage: {

@@ -5,6 +5,7 @@ import { Input } from '../components/Input';
 import { LockButton } from '../components/LockButton';
 import { ScaleControl } from '../components/ScaleControl';
 import { StrokeInclusionControl } from '../components/StrokeInclusionControl';
+import { StrokeIcon } from '../components/Icons';
 import { LinkedConnector } from '../components/ui/LinkedConnector';
 import { SectionContainer } from '../components/ui/SectionContainer';
 import { SectionTitle } from '../components/ui/SectionTitle';
@@ -139,7 +140,7 @@ export default function App() {
   const [anchor, setAnchor] = useState<AnchorPoint>(4);
   const [scaleDraft, setScaleDraft] = useState('1x');
   const [scaleFocused, setScaleFocused] = useState(false);
-  const [includesOutsideStroke, setIncludesOutsideStroke] = useState(true);
+  const [includesOutsideStroke, setIncludesOutsideStroke] = useState(false);
   const [drafts, setDrafts] = useState<Drafts>(EMPTY_DRAFTS);
   const [focusedField, setFocusedField] = useState<Field | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -170,8 +171,9 @@ export default function App() {
         setFocusedField(null);
         setScaleFocused(false);
         cancelBlurRef.current = null;
-        setIncludesOutsideStroke(true);
-        setDrafts(nextNode ? draftsForNode(nextNode, unit, true) : EMPTY_DRAFTS);
+        setIncludesOutsideStroke(false);
+        sendPluginMessage({ type: 'set-stroke-inclusion-preview', included: false });
+        setDrafts(nextNode ? draftsForNode(nextNode, unit, false) : EMPTY_DRAFTS);
         setScaleDraft('1x');
       }
       setSelection(message.selection);
@@ -413,6 +415,7 @@ export default function App() {
 
   const changeOutsideStrokeInclusion = (included: boolean): void => {
     setIncludesOutsideStroke(included);
+    sendPluginMessage({ type: 'set-stroke-inclusion-preview', included });
   };
 
   const dimensionsDisabled = !node || node.locked;
@@ -476,12 +479,13 @@ export default function App() {
           <div className="property-stroke">
             <div className="property-stroke__labels" aria-hidden="true">
               <span className={strokeDisabled ? 'property-stroke__label--disabled' : undefined}>Stroke</span>
-              <span className={strokeInclusionDisabled ? 'property-stroke__label--disabled' : undefined}>Inside stroke</span>
+              <span className={strokeInclusionDisabled ? 'property-stroke__label--disabled' : undefined}>Outside stroke</span>
               <span />
             </div>
             <div className="property-row property-row--stroke">
               <Input
                 label=""
+                leading={<StrokeIcon />}
                 unit={unit}
                 aria-label={`Stroke in ${unit}`}
                 value={drafts.stroke}

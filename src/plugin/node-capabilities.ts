@@ -1,6 +1,12 @@
 import { currentAspectRatio } from '../domain/geometry';
 import type { NodeDimensions } from '../domain/geometry';
-import { strokeOuterBounds, type StrokeAlignment, type StrokeOuterBounds } from '../domain/stroke-bounds';
+import {
+  strokeOuterBounds,
+  strokeOutsets,
+  type StrokeAlignment,
+  type StrokeOuterBounds,
+  type StrokeOutsets,
+} from '../domain/stroke-bounds';
 
 interface RecordLike {
   [key: string]: unknown;
@@ -39,6 +45,8 @@ export interface StrokeCapabilities {
   present: boolean;
   weightPx: number | null;
   outerBounds: StrokeOuterBounds;
+  /** `null` means that no exact per-edge geometry is available. */
+  outsets: StrokeOutsets | null;
 }
 
 export interface NodeCapabilities {
@@ -124,17 +132,20 @@ export function getStrokeCapabilities(node: unknown): StrokeCapabilities {
     readNumber(node, `stroke${side}Weight`) ?? weightPx
   );
 
+  const sides = {
+    topPx: sideWeight('Top'),
+    rightPx: sideWeight('Right'),
+    bottomPx: sideWeight('Bottom'),
+    leftPx: sideWeight('Left'),
+  };
+
   return {
     present,
     weightPx,
     outerBounds: present
-      ? strokeOuterBounds(alignment, {
-        topPx: sideWeight('Top'),
-        rightPx: sideWeight('Right'),
-        bottomPx: sideWeight('Bottom'),
-        leftPx: sideWeight('Left'),
-      })
+      ? strokeOuterBounds(alignment, sides)
       : { widthPx: null, heightPx: null },
+    outsets: present ? strokeOutsets(alignment, sides) : null,
   };
 }
 

@@ -1,9 +1,10 @@
-import type { InputHTMLAttributes, FC } from 'react';
+import type { InputHTMLAttributes, FC, ReactNode } from 'react';
 import { useState } from 'react';
 
 interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   label: string;
   unit?: string;
+  leading?: ReactNode;
   unitOverlay?: boolean;
   paddingRight?: string;
   value: string;
@@ -14,7 +15,7 @@ interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChan
   disabled?: boolean;
 }
 
-export const Input: FC<InputProps> = ({ label, unit, unitOverlay, paddingRight, value, onChange, onBlur, onFocusStateChange, error, disabled, ...props }) => {
+export const Input: FC<InputProps> = ({ label, unit, leading, unitOverlay, paddingRight, value, onChange, onBlur, onFocusStateChange, error, disabled, ...props }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -54,7 +55,7 @@ export const Input: FC<InputProps> = ({ label, unit, unitOverlay, paddingRight, 
         height: '24px',
         minHeight: '24px',
         maxHeight: '24px',
-        paddingLeft: '6px',
+        paddingLeft: leading ? 0 : '6px',
         paddingRight: paddingRight !== undefined ? paddingRight : (unit && !unitOverlay ? '6px' : '2px'),
         paddingTop: 0,
         paddingBottom: 0,
@@ -65,7 +66,8 @@ export const Input: FC<InputProps> = ({ label, unit, unitOverlay, paddingRight, 
         opacity: disabled ? 0.4 : 1,
         pointerEvents: disabled ? 'none' : 'auto'
       }}
-    >
+      >
+      {leading && <span className="input__leading-icon" aria-hidden="true">{leading}</span>}
       {shortLabel && (
         <span
           style={{

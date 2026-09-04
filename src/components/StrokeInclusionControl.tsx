@@ -30,8 +30,8 @@ interface MenuPosition {
 }
 
 const OPTIONS = [
-  { value: true, label: 'Included' },
   { value: false, label: 'Excluded' },
+  { value: true, label: 'Included' },
 ] as const;
 
 export const StrokeInclusionControl: FC<StrokeInclusionControlProps> = ({
@@ -45,7 +45,7 @@ export const StrokeInclusionControl: FC<StrokeInclusionControlProps> = ({
   const [open, setOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
   const menuId = useId();
-  const selectedIndex = value ? 0 : 1;
+  const selectedIndex = OPTIONS.findIndex((option) => option.value === value);
 
   const closeMenu = useCallback((restoreFocus = false) => {
     setOpen(false);
@@ -184,7 +184,7 @@ export const StrokeInclusionControl: FC<StrokeInclusionControlProps> = ({
       id={menuId}
       className="stroke-inclusion-control__menu"
       role="listbox"
-      aria-label="Inside stroke options"
+      aria-label="Outside stroke options"
       style={menuPosition ? {
         left: `${menuPosition.horizontal.left}px`,
         top: `${menuPosition.vertical.top}px`,
@@ -221,7 +221,7 @@ export const StrokeInclusionControl: FC<StrokeInclusionControlProps> = ({
         ref={triggerRef}
         type="button"
         className="stroke-inclusion-control__trigger"
-        aria-label="Inside stroke"
+        aria-label="Outside stroke"
         aria-controls={open ? menuId : undefined}
         aria-expanded={open}
         aria-haspopup="listbox"

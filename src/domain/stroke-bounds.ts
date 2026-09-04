@@ -15,6 +15,14 @@ export interface StrokeOuterBounds {
   heightPx: number | null;
 }
 
+/** Visible painted extent beyond each edge of the node's geometry contour. */
+export interface StrokeOutsets {
+  leftPx: number;
+  rightPx: number;
+  topPx: number;
+  bottomPx: number;
+}
+
 function validWeight(value: number | null): value is number {
   return value !== null && Number.isFinite(value) && value >= 0;
 }
@@ -29,18 +37,38 @@ export function strokeOuterBounds(
   alignment: StrokeAlignment | null,
   sides: StrokeSideWeights,
 ): StrokeOuterBounds {
+  const outsets = strokeOutsets(alignment, sides);
+  if (!outsets) {
+    return { widthPx: null, heightPx: null };
+  }
+  return {
+    widthPx: outsets.leftPx + outsets.rightPx,
+    heightPx: outsets.topPx + outsets.bottomPx,
+  };
+}
+
+/**
+ * Returns `null` when the exact outside geometry is unavailable. Callers that
+ * draw on the canvas must prefer no visual over a misleading approximation.
+ */
+export function strokeOutsets(
+  alignment: StrokeAlignment | null,
+  sides: StrokeSideWeights,
+): StrokeOutsets | null {
   if (alignment === 'INSIDE') {
-    return { widthPx: 0, heightPx: 0 };
+    return { leftPx: 0, rightPx: 0, topPx: 0, bottomPx: 0 };
   }
   if (alignment === null || !validWeight(sides.leftPx) || !validWeight(sides.rightPx)
     || !validWeight(sides.topPx) || !validWeight(sides.bottomPx)) {
-    return { widthPx: null, heightPx: null };
+    return null;
   }
 
   const multiplier = alignment === 'CENTER' ? 0.5 : 1;
   return {
-    widthPx: (sides.leftPx + sides.rightPx) * multiplier,
-    heightPx: (sides.topPx + sides.bottomPx) * multiplier,
+    leftPx: sides.leftPx * multiplier,
+    rightPx: sides.rightPx * multiplier,
+    topPx: sides.topPx * multiplier,
+    bottomPx: sides.bottomPx * multiplier,
   };
 }
 

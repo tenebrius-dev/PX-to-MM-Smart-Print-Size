@@ -74,6 +74,7 @@ describe('node capabilities', () => {
       present: true,
       weightPx: 1.5,
       outerBounds: { widthPx: null, heightPx: null },
+      outsets: null,
     });
     expect(hasEditableStrokeWeight(uniform)).toBe(true);
 
@@ -82,12 +83,14 @@ describe('node capabilities', () => {
       present: true,
       weightPx: null,
       outerBounds: { widthPx: null, heightPx: null },
+      outsets: null,
     });
     expect(hasEditableStrokeWeight(mixed)).toBe(false);
     expect(getStrokeCapabilities(node())).toEqual({
       present: false,
       weightPx: null,
       outerBounds: { widthPx: null, heightPx: null },
+      outsets: null,
     });
   });
 
@@ -101,6 +104,7 @@ describe('node capabilities', () => {
       present: true,
       weightPx: 3,
       outerBounds: { widthPx: 6, heightPx: 6 },
+      outsets: { leftPx: 3, rightPx: 3, topPx: 3, bottomPx: 3 },
     });
 
     const centered = node({
@@ -113,6 +117,12 @@ describe('node capabilities', () => {
       strokeBottomWeight: 3,
     });
     expect(getStrokeCapabilities(centered).outerBounds).toEqual({ widthPx: 4, heightPx: 2 });
+    expect(getStrokeCapabilities(centered).outsets).toEqual({
+      leftPx: 1,
+      rightPx: 3,
+      topPx: 0.5,
+      bottomPx: 1.5,
+    });
   });
 
   it('treats hidden stroke paints as absent and ignores them in the bounds', () => {
@@ -125,6 +135,7 @@ describe('node capabilities', () => {
       present: false,
       weightPx: null,
       outerBounds: { widthPx: null, heightPx: null },
+      outsets: null,
     });
     expect(hasEditableStrokeWeight(hidden)).toBe(false);
 

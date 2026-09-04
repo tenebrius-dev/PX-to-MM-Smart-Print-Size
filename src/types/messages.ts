@@ -60,6 +60,7 @@ export type PositionAxis = 'x' | 'y';
 
 export type UiToPluginMessage =
   | { type: 'resize'; height: number }
+  | { type: 'set-stroke-inclusion-preview'; included: boolean }
   | {
       type: 'set-position';
       nodeId: string;
@@ -175,6 +176,10 @@ export function isUiToPluginMessage(value: unknown): value is UiToPluginMessage 
   const message = value as Partial<UiToPluginMessage> & { type?: unknown };
   if (message.type === 'resize') {
     return isFiniteNumber(message.height) && message.height > 0;
+  }
+
+  if (message.type === 'set-stroke-inclusion-preview') {
+    return typeof message.included === 'boolean';
   }
 
   if (message.type === 'set-position') {
