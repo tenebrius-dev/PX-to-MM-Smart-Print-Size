@@ -1,0 +1,94 @@
+.ui3-switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui3-space-2);
+  cursor: default;
+  user-select: none;
+  font-family: var(--ui3-font-ui);
+  font-size: var(--ui3-type-body-medium-fontsize);
+  font-weight: var(--ui3-type-body-medium-fontweight);
+  line-height: var(--ui3-type-body-medium-lineheight);
+  letter-spacing: var(--ui3-type-body-medium-letterspacing);
+  color: var(--ui3-text);
+}
+
+.ui3-switch-label--disabled {
+  color: var(--ui3-text-disabled);
+  pointer-events: none;
+}
+
+.ui3-switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ui3-switch-track {
+  position: relative;
+  width: 32px;
+  height: 16px;
+  background: var(--ui3-bg-tertiary);
+  border-radius: var(--ui3-radius-full); /* pill shape */
+  border: 1px solid var(--ui3-border);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.ui3-switch-thumb {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 1px;
+  background: var(--ui3-icon); /* usually matches text color on non-active */
+  border-radius: 50%;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover state */
+.ui3-switch-label:not(.ui3-switch-label--disabled):hover .ui3-switch-track {
+  border-color: var(--ui3-border-strong);
+}
+
+.ui3-switch-label:not(.ui3-switch-label--disabled):hover .ui3-switch-thumb {
+  background: var(--ui3-icon-on-brand); /* darker thumb on hover occasionally depending on exact figma spec, or just solid */
+}
+
+/* Checked state */
+.ui3-switch-input:checked + .ui3-switch-track {
+  background: var(--ui3-bg-brand);
+  border-color: var(--ui3-bg-brand);
+}
+
+.ui3-switch-input:checked + .ui3-switch-track .ui3-switch-thumb {
+  transform: translateX(16px);
+  background: var(--ui3-icon-on-brand); /* typically white */
+}
+
+/* Focus state */
+.ui3-switch-input:focus-visible + .ui3-switch-track {
+  box-shadow: 0 0 0 2px var(--ui3-bg), 0 0 0 4px var(--ui3-bg-brand);
+}
+
+/* Disabled state */
+.ui3-switch-input:disabled + .ui3-switch-track {
+  background: var(--ui3-bg-disabled);
+  border-color: var(--ui3-border);
+}
+
+.ui3-switch-input:disabled + .ui3-switch-track .ui3-switch-thumb {
+  background: var(--ui3-icon-disabled);
+}
+
+/* Disabled + Checked state */
+.ui3-switch-input:disabled:checked + .ui3-switch-track {
+  background: var(--ui3-border);
+  border-color: var(--ui3-border);
+}
+
+.ui3-switch-input:disabled:checked + .ui3-switch-track .ui3-switch-thumb {
+  background: var(--ui3-bg);
+}

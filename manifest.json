@@ -1,0 +1,16 @@
+{
+  "name": "PX to MM — Smart Print Size",
+  "id": "1677303962005922764",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/index.html",
+  "editorType": [
+    "figma"
+  ],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ]
+  }
+}

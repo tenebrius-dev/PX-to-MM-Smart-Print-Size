@@ -1,0 +1,31 @@
+@import '../design-system/ui3/src/index.css';
+
+:root {
+  --ui3-text-label: #8A8A8A;
+}
+
+html,
+body,
+#root {
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+[contenteditable='true'] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,72 @@
+.ui3-input-wrapper {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.ui3-input {
+  width: 100%;
+  height: 32px; /* Standard UI3 input height */
+  padding: var(--ui3-space-1) var(--ui3-space-2);
+  border-radius: var(--ui3-radius-medium);
+  border: 1px solid var(--ui3-border);
+  background: var(--ui3-bg);
+  color: var(--ui3-text);
+  font-family: var(--ui3-font-ui);
+  font-size: var(--ui3-type-body-medium-fontsize);
+  font-weight: var(--ui3-type-body-medium-fontweight);
+  line-height: var(--ui3-type-body-medium-lineheight);
+  letter-spacing: var(--ui3-type-body-medium-letterspacing);
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
+  outline: none;
+}
+
+.ui3-input:hover {
+  border-color: var(--ui3-border-strong);
+}
+
+.ui3-input:focus {
+  border-color: var(--ui3-bg-brand);
+  box-shadow: 0 0 0 1px var(--ui3-bg-brand);
+}
+
+.ui3-input:disabled {
+  background: var(--ui3-bg-disabled);
+  color: var(--ui3-text-disabled);
+  border-color: var(--ui3-border);
+  pointer-events: none;
+}
+
+.ui3-input::placeholder {
+  color: var(--ui3-text-tertiary);
+}
+
+/* With Icon */
+.ui3-input--with-icon-left {
+  padding-left: 28px;
+}
+
+.ui3-input--with-icon-right {
+  padding-right: 28px;
+}
+
+.ui3-input__icon-left,
+.ui3-input__icon-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ui3-text-tertiary);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui3-input__icon-left {
+  left: var(--ui3-space-2);
+}
+
+.ui3-input__icon-right {
+  right: var(--ui3-space-2);
+}

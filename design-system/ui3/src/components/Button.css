@@ -1,0 +1,99 @@
+.ui3-btn-group {
+  display: inline-flex;
+  border-radius: var(--ui3-radius-medium);
+  overflow: hidden;
+}
+
+.ui3-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui3-space-1);
+  padding: var(--ui3-space-1) var(--ui3-space-2);
+  border-radius: var(--ui3-radius-medium);
+  font-family: var(--ui3-font-ui);
+  font-size: var(--ui3-type-body-medium-fontsize);
+  font-weight: var(--ui3-type-body-medium-fontweight);
+  line-height: var(--ui3-type-body-medium-lineheight);
+  letter-spacing: var(--ui3-type-body-medium-letterspacing);
+  border: 1px solid transparent;
+  cursor: default;
+  user-select: none;
+  text-decoration: none;
+  background: transparent;
+}
+
+.ui3-button:disabled {
+  pointer-events: none;
+}
+
+/* Primary */
+.ui3-button--primary {
+  background: var(--ui3-bg-brand);
+  color: var(--ui3-text-on-brand);
+}
+
+.ui3-button--primary:hover {
+  background: var(--ui3-bg-brand-hover);
+}
+
+.ui3-button--primary:active {
+  background: var(--ui3-bg-brand-pressed);
+}
+
+.ui3-button--primary:disabled {
+  background: var(--ui3-bg-disabled);
+  color: var(--ui3-text-disabled);
+}
+
+/* Secondary */
+.ui3-button--secondary {
+  background: var(--ui3-bg);
+  color: var(--ui3-text);
+  border-color: var(--ui3-border);
+}
+
+.ui3-button--secondary:hover {
+  background: var(--ui3-bg-hover);
+}
+
+.ui3-button--secondary:active {
+  background: var(--ui3-bg-pressed);
+  border-color: var(--ui3-border-strong);
+}
+
+.ui3-button--secondary:disabled {
+  color: var(--ui3-text-disabled);
+  border-color: var(--ui3-border);
+  opacity: 0.5;
+}
+
+/* Danger */
+.ui3-button--danger {
+  background: var(--ui3-bg-danger);
+  color: #fff;
+}
+
+.ui3-button--danger:disabled {
+  background: var(--ui3-bg-disabled);
+  color: var(--ui3-text-disabled);
+}
+
+/* Icon-only padding adjust */
+.ui3-button--icon-only {
+  padding: var(--ui3-space-1);
+}
+
+/* Split button specific styles */
+.ui3-btn-group .ui3-button {
+  border-radius: 0;
+}
+.ui3-btn-group .ui3-button:first-child {
+  border-top-left-radius: var(--ui3-radius-medium);
+  border-bottom-left-radius: var(--ui3-radius-medium);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+.ui3-btn-group .ui3-button:last-child {
+  border-top-right-radius: var(--ui3-radius-medium);
+  border-bottom-right-radius: var(--ui3-radius-medium);
+}
